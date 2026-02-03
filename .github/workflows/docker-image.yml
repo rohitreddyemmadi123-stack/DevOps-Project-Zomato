@@ -15,7 +15,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        if: github.event_name != 'pull_request' # Only login if we are pushing (not just a PR test)
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -25,7 +24,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          # Only push the image on a real commit to main, not on PRs (to save registry space)
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/zomato:latest
