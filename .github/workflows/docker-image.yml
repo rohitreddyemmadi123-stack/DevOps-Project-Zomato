@@ -1,18 +1,32 @@
-name: Docker Image CI
+name: Build and Push to Docker Hub
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ] # Runs whenever you push to the main branch
 
 jobs:
-
-  build:
-
-    runs-on: ubuntu-latest
+  build-and-push:
+    runs-on: ubuntu-latest # This is a hosted runner, no need to worry about RAM!
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag rohithreddy1331:new
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # Tags the image with 'latest' and the Git SHA for versioning
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/zomato:latest
+            ${{ secrets.DOCKER_USERNAME }}/zomato:${{ github.sha }}
