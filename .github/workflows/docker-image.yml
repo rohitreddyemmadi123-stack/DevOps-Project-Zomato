@@ -2,20 +2,20 @@ name: Build and Push to Docker Hub
 
 on:
   push:
-    branches: [ "main" ] # Runs whenever you push to the main branch
+    branches: [ "main" ]  # Triggers on every commit/merge to main
+  pull_request:
+    branches: [ "main" ]  # Triggers when a PR is opened against main
+  workflow_dispatch:      # Allows you to run the pipeline manually for testing
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest # This is a hosted runner, no need to worry about RAM!
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Login to Docker Hub
+        if: github.event_name != 'pull_request' # Only login if we are pushing (not just a PR test)
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -25,8 +25,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
-          # Tags the image with 'latest' and the Git SHA for versioning
+          # Only push the image on a real commit to main, not on PRs (to save registry space)
+          push: ${{ github.event_name == 'push' }}
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/zomato:latest
             ${{ secrets.DOCKER_USERNAME }}/zomato:${{ github.sha }}
