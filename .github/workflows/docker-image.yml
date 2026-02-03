@@ -26,7 +26,7 @@ jobs:
         with:
           context: .
           # Only push the image on a real commit to main, not on PRs (to save registry space)
-          push: ${{ github.event_name == 'push' }}
+          push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/zomato:latest
             ${{ secrets.DOCKER_USERNAME }}/zomato:${{ github.sha }}
