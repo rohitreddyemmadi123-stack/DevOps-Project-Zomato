@@ -2,9 +2,9 @@ name: Build and Push to Docker Hub
 
 on:
   push:
-    branches: [ "main" ]  # Triggers on every commit/merge to main
+    branches: [ "master" ]  # Triggers on every commit/merge to main
   pull_request:
-    branches: [ "main" ]  # Triggers when a PR is opened against main
+    branches: [ "master" ]  # Triggers when a PR is opened against main
   workflow_dispatch:      # Allows you to run the pipeline manually for testing
 
 jobs:
