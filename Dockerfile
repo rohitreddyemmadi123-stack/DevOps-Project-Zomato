@@ -1,7 +1,6 @@
 # Use Node.js 16 slim as the base image
 FROM node:23-slim
 
-RUN apt-get update && apt-get install -y libatomic1 && rm -rf /var/lib/apt/lists/*
 # Set the working directory
 WORKDIR /app
 
