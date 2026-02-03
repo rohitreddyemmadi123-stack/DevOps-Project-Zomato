@@ -1,23 +1,36 @@
-# Use Node.js 16 slim as the base image
+# 1. Use a specific version for consistency
 FROM node:23-slim
 
-# Set the working directory
+# 2. Install system dependencies (Fixes the libatomic crash)
+# We combine these and clean the cache to keep the image slim
+RUN apt-get update && \
+    apt-get install -y libatomic1 && \
+    rm -rf /var/lib/apt/lists/*
+
+# 3. Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
+# 4. Copy only package files first (This optimizes Docker layer caching)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# 5. Install dependencies
+# Using --omit=dev keeps the image smaller for production
+RUN npm install --omit=dev
 
-# Copy the rest of the application code
+# 6. Copy the rest of the code
 COPY . .
 
-# Build the React app
-RUN npm run build
+# 7. Build the app (if it's a React/Frontend app)
+RUN npm run build --if-present
 
-# Expose port 3000 (or the port your app is configured to listen on)
+# 8. Set environment to production
+ENV NODE_ENV=production
+
+# 9. Expose port
 EXPOSE 3000
 
-# Start your Node.js server (assuming it serves the React app)  
+# 10. Use a non-root user for security (Best Practice!)
+USER node
+
+# Start the application
 CMD ["npm", "start"]
